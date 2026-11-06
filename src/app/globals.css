@@ -5257,6 +5257,7 @@ html.enemy-turn .phase-banner-backdrop{display:none}
 }
 
 .mobile-restriction-card {
+  position: relative;
   background: #fffdf7;
   border: 3.5px solid #161731;
   border-radius: 26px;
@@ -5394,6 +5395,69 @@ html.enemy-turn .phase-banner-backdrop{display:none}
   line-height: 1.4;
   box-sizing: border-box;
   word-break: keep-all;
+}
+
+.mobile-restriction-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #161731;
+  background: #ffffff;
+  color: #161731;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 #161731;
+  transition: transform 0.1s ease, background 0.1s ease;
+  z-index: 2;
+}
+
+.mobile-restriction-close-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #161731;
+}
+
+.mobile-restriction-close-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #161731;
+}
+
+.mobile-restriction-continue-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 2.5px solid #161731;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #161731;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.mobile-restriction-continue-btn:hover {
+  filter: brightness(1.08);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #161731;
+}
+
+.mobile-restriction-continue-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #161731;
 }
 
 /* 🧭 문법 개념 표 (Grammar Concept Table) - 아기자기 3D 판타지 보드 */

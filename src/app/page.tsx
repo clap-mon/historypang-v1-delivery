@@ -130,6 +130,25 @@ function AudioToggle({ isMuted, onToggle }: { isMuted: boolean; onToggle: () => 
   );
 }
 
+function isRealMobileDevice(): boolean {
+  if (typeof window === "undefined" || !window.navigator) return false;
+  const ua = window.navigator.userAgent || "";
+
+  // 1. 데스크톱 OS(Windows, Mac, Linux x86, 크롬OS 등)는 창이나 iframe 크기가 아무리 작아져도 스마트폰으로 판정하지 않음
+  const isDesktopOS = /CrOS|Windows NT|Macintosh|Linux x86_64/i.test(ua) && !/Android/i.test(ua);
+  if (isDesktopOS) {
+    return false;
+  }
+
+  // 2. 명확한 모바일 스마트폰 기기 식별자
+  const isMobileUA = /Android.*Mobile|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+
+  // 3. 실제 스마트폰 화면 크기 조건 (단변 600px 미만)
+  const shortest = Math.min(window.innerWidth, window.innerHeight);
+
+  return isMobileUA && shortest < 600;
+}
+
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [stageId, setStageId] = useState<StageId>(1);
@@ -196,11 +215,26 @@ export default function Home() {
     return generateStageQuiz(stageId, 1, session);
   }, [screen, bossPhase, stageId, battle?.round, session]);
 
+  const handleDismissMobileNotice = () => {
+    setShowMobileNotice(false);
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem("history_mobile_notice_dismissed", "true");
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
   useEffect(() => {
     const checkDeviceSize = () => {
       if (typeof window !== "undefined") {
-        const shortestDimension = Math.min(window.innerWidth, window.innerHeight);
-        setShowMobileNotice(shortestDimension < 600);
+        const isDismissed = sessionStorage.getItem("history_mobile_notice_dismissed") === "true";
+        if (isDismissed) {
+          setShowMobileNotice(false);
+          return;
+        }
+        setShowMobileNotice(isRealMobileDevice());
       }
     };
     checkDeviceSize();
@@ -494,7 +528,7 @@ export default function Home() {
   return (
     <>
       {currentView}
-      {showMobileNotice && <MobileRestrictionNotice />}
+      {showMobileNotice && <MobileRestrictionNotice onClose={handleDismissMobileNotice} />}
     </>
   );
 }
@@ -2728,14 +2762,25 @@ function Ending({ character, collectedTitleIds, onMain, onRefreshTitles, score }
   );
 }
 
-function MobileRestrictionNotice() {
+function MobileRestrictionNotice({ onClose }: { onClose: () => void }) {
   return (
     <div className="mobile-restriction-backdrop">
       <div className="mobile-restriction-card">
+        {/* 우측 상단 닫기 버튼 */}
+        <button
+          type="button"
+          className="mobile-restriction-close-btn"
+          onClick={onClose}
+          aria-label="안내 닫기"
+          title="안내 닫기"
+        >
+          ✕
+        </button>
+
         {/* 상단 안내 뱃지 */}
         <div className="mobile-restriction-badge">
           <span>⚠️</span>
-          <span>스마트폰 이용 제한 안내</span>
+          <span>스마트폰 이용 안내</span>
         </div>
 
         {/* 디바이스 아이콘 */}
@@ -2745,10 +2790,10 @@ function MobileRestrictionNotice() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <h3 className="mobile-restriction-title">
-            스마트폰 환경에서는<br />이용할 수 없어요!
+            PC / 태블릿 환경에<br />최적화되어 있어요!
           </h3>
           <p className="mobile-restriction-desc">
-            역사팡: 선사시대와 고조선은 다채로운 역사 개념 탐구와 확인문제 실습, 3단계 카드배틀을 위해 <strong>PC 및 태블릿 환경</strong>에 최적화되어 있습니다.
+            역사팡: 선사시대와 고조선은 다채로운 역사 개념 탐구와 확인문제 실습, 3단계 카드배틀을 위해 <strong>PC 및 태블릿 대화면</strong>에 최적화되어 있습니다.
           </p>
         </div>
 
@@ -2775,8 +2820,17 @@ function MobileRestrictionNotice() {
 
         {/* 하단 안내 문구 */}
         <div className="mobile-restriction-footer-note">
-          📜 PC나 태블릿에서 더 넓고 즐겁게 역사팡: 선사시대와 고조선을 모험해 보세요! ✨
+          📜 스마트폰에서도 플레이할 수 있지만 화면이 좁거나 일부 조작이 작게 보일 수 있습니다.
         </div>
+
+        {/* 계속 진행하기 버튼 */}
+        <button
+          type="button"
+          className="mobile-restriction-continue-btn"
+          onClick={onClose}
+        >
+          그래도 계속 진행하기 →
+        </button>
       </div>
     </div>
   );
